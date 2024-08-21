@@ -1,14 +1,21 @@
 // Пример использования многопоточности на AppleScript
 
-include <as_threading>;
+#include <iostream>
+#include <as_threading>  // Подключаем библиотеку для работы с потоками
 
+// Функция, которая будет выполняться в отдельном потоке
 void threadFunction() {
-    as::print("Thread is running");
+    std::cout << "Thread is running" << std::endl;  // Вывод сообщения в консоль
 }
 
 int main() {
+    // Создаем объект потока и передаем ему функцию
     as::Thread thread(threadFunction);
+
+    // Запускаем поток
     thread.start();
+
+    // Ожидаем завершения потока
     thread.join();
 
     return 0;
