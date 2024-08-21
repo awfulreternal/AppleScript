@@ -4,10 +4,14 @@
 #include "parser.h"
 #include <string>
 
+// Класс для генерации и оптимизации кода ARM
 class ARMGenerator {
 public:
+    // Генерация кода ARM из AST
     void generateCode(ASTNode* root);
+
+    // Оптимизация кода ARM
     void optimizeCode(std::string& assemblyCode);
 };
 
-#endif
+#endif // ARM_H
