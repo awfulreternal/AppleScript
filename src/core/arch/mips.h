@@ -4,10 +4,14 @@
 #include "parser.h"
 #include <string>
 
+// Класс для генерации и оптимизации MIPS-кода
 class MIPSGenerator {
 public:
+    // Генерация MIPS-кода из абстрактного синтаксического дерева
     void generateCode(ASTNode* root);
+
+    // Оптимизация MIPS-кода для улучшения производительности
     void optimizeCode(std::string& assemblyCode);
 };
 
-#endif
+#endif // MIPS_H
