@@ -1,6 +1,12 @@
 #include "lexer.h"
 #include <fstream>
 #include <cctype>
+#include <unordered_set>
+
+// Определение ключевых слов
+const std::unordered_set<std::string> KEYWORDS = {
+    "class", "function", "async", "await", "if", "else", "for", "while"
+};
 
 Lexer::Lexer(const std::string& filename) {
     std::ifstream file(filename);
@@ -36,7 +42,18 @@ Token Lexer::getNextToken() {
             return number();
         }
 
-        return op();
+        if (currentChar == '+' || currentChar == '-' ||
+            currentChar == '*' || currentChar == '/') {
+            return op();
+        }
+
+        if (currentChar == '{' || currentChar == '}' ||
+            currentChar == '(' || currentChar == ')' ||
+            currentChar == '[' || currentChar == ']') {
+            return punct();
+        }
+
+        throw std::runtime_error("Unknown character");
     }
 
     return {TOKEN_EOF, ""};
@@ -48,6 +65,15 @@ Token Lexer::identifier() {
         result += currentChar;
         advance();
     }
+
+    if (KEYWORDS.find(result) != KEYWORDS.end()) {
+        if (result == "class") return {TOKEN_CLASS, result};
+        if (result == "function") return {TOKEN_FUNCTION, result};
+        if (result == "async") return {TOKEN_ASYNC, result};
+        if (result == "await") return {TOKEN_AWAIT, result};
+        // Добавьте сюда другие ключевые слова, если необходимо
+    }
+    
     return {TOKEN_IDENTIFIER, result};
 }
 
@@ -64,4 +90,10 @@ Token Lexer::op() {
     char op = currentChar;
     advance();
     return {TOKEN_OPERATOR, std::string(1, op)};
+}
+
+Token Lexer::punct() {
+    char punct = currentChar;
+    advance();
+    return {TOKEN_PUNCTUATION, std::string(1, punct)};
 }
