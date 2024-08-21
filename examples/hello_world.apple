@@ -1,13 +1,19 @@
 // Пример простого кода на AppleScript
 
-include <iostream>;
-include <as_network>;
+#include <iostream>
+#include "as_network.h"
 
 int main() {
+    // Используем пространство имен as для печати
     as::print("Hello, AppleScript!");
 
+    // Создаем объект клиента сети
     NetworkClient client;
+
+    // Подключаемся к локальному хосту
     client.connect("127.0.0.1");
+
+    // Отправляем данные
     client.sendData("Hello, Network!");
 
     return 0;
