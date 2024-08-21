@@ -1,14 +1,23 @@
 // Пример использования сети на AppleScript
 
-include <as_network>;
+#include <iostream>
+#include <as_network>  // Подключаем библиотеку для работы с сетью
 
 int main() {
+    // Создаем объект клиента сети
     NetworkClient client;
+
+    // Подключаемся к серверу по IP адресу
     client.connect("192.168.1.1");
+
+    // Отправляем данные серверу
     client.sendData("Hello, Server!");
 
+    // Получаем ответ от сервера
     std::string response = client.receiveData();
-    as::print("Server Response: " + response);
+
+    // Печатаем ответ сервера
+    std::cout << "Server Response: " << response << std::endl;
 
     return 0;
 }
