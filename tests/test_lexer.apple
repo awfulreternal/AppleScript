@@ -1,0 +1,5 @@
+-- Пример теста для проверки лексера
+set testString to "let x = 10;"
+set expectedToken to "LET"
+-- Выполнить тестовую проверку (в реальном проекте здесь должен быть код для запуска лексера)
+display dialog "Test Lexer: " & testString
