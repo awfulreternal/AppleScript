@@ -31,6 +31,7 @@ void ARMGenerator::generateCode(ASTNode* root) {
         // В ARM нет простой команды деления, поэтому используется функция библиотеки или ассистирующий код
         std::cout << "    bl __aeabi_idiv" << std::endl;
     } else {
+        // Здесь предполагается, что root->value содержит число
         std::cout << "    mov r0, #" << root->value << std::endl;
     }
 }
@@ -46,6 +47,12 @@ void ARMGenerator::optimizeCode(std::string& assemblyCode) {
         assemblyCode.replace(pos, 26, "mov r0, r1");
     }
 
-    // Loop unrolling - разматывание циклов для увеличения производительности
-    // (это сложная оптимизация, требующая анализа исходного кода)
+    // Удаление ненужных инструкций
+    // Например, если "mov r0, r0" встречается, можно убрать эту инструкцию
+    while ((pos = assemblyCode.find("mov r0, r0")) != std::string::npos) {
+        assemblyCode.erase(pos, 9);
+    }
+
+    // Обратите внимание, что оптимизации должны учитывать контекст и
+    // структуру кода для эффективного применения
 }
