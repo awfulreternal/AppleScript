@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 // Определение типов ошибок
 enum class ErrorType {
@@ -32,9 +34,20 @@ public:
     // Вывод всех ошибок
     void printErrors() const {
         for (const auto &error : errors) {
-            std::cerr << getErrorTypeString(error.type) << " at line " 
-                      << error.line << ", column " << error.column << ": " 
-                      << error.message << std::endl;
+            std::cerr << formatError(error) << std::endl;
+        }
+    }
+
+    // Запись всех ошибок в файл
+    void writeErrorsToFile(const std::string &filename) const {
+        std::ofstream file(filename);
+        if (file.is_open()) {
+            for (const auto &error : errors) {
+                file << formatError(error) << std::endl;
+            }
+            file.close();
+        } else {
+            std::cerr << "Unable to open file for writing errors." << std::endl;
         }
     }
 
@@ -51,6 +64,15 @@ public:
 private:
     std::vector<Error> errors;
 
+    // Форматирование сообщения об ошибке
+    std::string formatError(const Error &error) const {
+        std::stringstream ss;
+        ss << getErrorTypeString(error.type) << " at line "
+           << error.line << ", column " << error.column << ": "
+           << error.message;
+        return ss.str();
+    }
+
     // Преобразование типа ошибки в строку для вывода
     std::string getErrorTypeString(ErrorType type) const {
         switch (type) {
@@ -65,4 +87,3 @@ private:
 
 // Глобальный экземпляр обработчика ошибок
 ErrorHandler g_errorHandler;
-
