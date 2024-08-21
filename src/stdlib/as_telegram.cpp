@@ -2,6 +2,7 @@
 #include <curl/curl.h>
 #include <json/json.h>
 #include <iostream>
+#include <sstream>
 
 // Конструктор
 TelegramBot::TelegramBot(const std::string& token) 
@@ -21,12 +22,12 @@ std::string TelegramBot::performRequest(const std::string& url) {
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
-    if(curl) {
+    if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
-        if(res != CURLE_OK) {
+        if (res != CURLE_OK) {
             std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
         }
         curl_easy_cleanup(curl);
@@ -38,7 +39,8 @@ std::string TelegramBot::performRequest(const std::string& url) {
 
 // Отправка текстового сообщения
 bool TelegramBot::sendMessage(const std::string& chatId, const std::string& message) {
-    std::string url = apiUrl + "sendMessage?chat_id=" + chatId + "&text=" + curl_easy_escape(nullptr, message.c_str(), message.size());
+    std::string escapedMessage = curl_easy_escape(nullptr, message.c_str(), message.size());
+    std::string url = apiUrl + "sendMessage?chat_id=" + chatId + "&text=" + escapedMessage;
     std::string response = performRequest(url);
 
     Json::Value jsonResponse;
