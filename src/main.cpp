@@ -2,10 +2,19 @@
 #include <memory>
 #include "lexer.h"
 #include "parser.h"
+#include "semantic_analysis.h"
 #include "codegen.h"
 #include "optimizer.h"
 #include "linker.h"
 #include "error_handler.h"
+
+// Функция для очистки ресурсов
+void cleanup(ASTNode* root) {
+    // Очистка дерева AST
+    delete root; 
+    // Очистка обработчика ошибок
+    g_errorHandler.clear(); 
+}
 
 int main(int argc, char* argv[]) {
     // Проверка аргументов командной строки
@@ -34,6 +43,15 @@ int main(int argc, char* argv[]) {
 
     if (g_errorHandler.hasErrors()) {
         g_errorHandler.printErrors();
+        cleanup(root);
+        return 1;
+    }
+
+    // Семантический анализ
+    SemanticAnalyzer semanticAnalyzer;
+    if (!semanticAnalyzer.analyze(root)) {
+        g_errorHandler.printErrors();
+        cleanup(root);
         return 1;
     }
 
@@ -52,19 +70,20 @@ int main(int argc, char* argv[]) {
     } catch (const std::exception& e) {
         g_errorHandler.addError(ErrorType::RUNTIME_ERROR, e.what(), 0, 0); // Параметры строки и столбца можно уточнить
         g_errorHandler.printErrors();
+        cleanup(root);
         return 1;
     }
 
     if (g_errorHandler.hasErrors()) {
         g_errorHandler.printErrors();
+        cleanup(root);
         return 1;
     }
 
     std::cout << "Compilation finished: output.o" << std::endl;
 
     // Очистка ресурсов
-    delete root; // Удаление дерева AST
-    g_errorHandler.clear(); // Очистка обработчика ошибок
+    cleanup(root);
 
     return 0;
 }
