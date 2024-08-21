@@ -1,0 +1,14 @@
+// Пример простого кода на AppleScript
+
+include <iostream>;
+include <as_network>;
+
+int main() {
+    as::print("Hello, AppleScript!");
+
+    NetworkClient client;
+    client.connect("127.0.0.1");
+    client.sendData("Hello, Network!");
+
+    return 0;
+}
