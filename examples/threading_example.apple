@@ -1,0 +1,15 @@
+// Пример использования многопоточности на AppleScript
+
+include <as_threading>;
+
+void threadFunction() {
+    as::print("Thread is running");
+}
+
+int main() {
+    as::Thread thread(threadFunction);
+    thread.start();
+    thread.join();
+
+    return 0;
+}
