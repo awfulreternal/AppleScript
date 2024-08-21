@@ -1,7 +1,7 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
-#include "parser.h"
+#include "ast.h"
 #include <string>
 
 class CodeGenerator {
@@ -11,8 +11,12 @@ public:
     std::string getObjectCode();
 
 private:
+    std::string generateClassCode(ASTNode* node);
+    std::string generateFunctionCode(ASTNode* node);
+    std::string generateExpressionCode(ASTNode* node);
+
     std::string irCode;
     std::string objectCode;
 };
 
-#endif
+#endif // CODEGEN_H
