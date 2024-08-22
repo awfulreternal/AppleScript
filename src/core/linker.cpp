@@ -1,31 +1,36 @@
 #include "linker.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <unordered_map>
 
 // Функция для объединения объектных файлов в один
 std::string Linker::mergeObjectCodes(const std::vector<std::string>& objectFiles) {
     std::stringstream mergedCode;
+    
     for (const auto& file : objectFiles) {
         std::ifstream inFile(file);
         if (!inFile) {
             std::cerr << "Error: Could not open object file " << file << std::endl;
             continue;
         }
+        
         std::string line;
         while (std::getline(inFile, line)) {
             mergedCode << line << "\n";
         }
+        
         inFile.close();
     }
+    
     return mergedCode.str();
 }
 
-// Функция для разрешения символов (простейшая реализация)
+// Функция для разрешения символов (пустая реализация, может быть расширена)
 std::string Linker::resolveSymbols(const std::string& code) {
-    // Здесь мы могли бы добавлять или изменять символы в коде
-    // Для простоты просто возвращаем исходный код
+    // Здесь можно добавить логику для замены или разрешения символов
+    // На данный момент просто возвращаем исходный код
     return code;
 }
 
