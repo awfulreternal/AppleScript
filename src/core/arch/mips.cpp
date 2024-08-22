@@ -5,13 +5,13 @@
 void MIPSGenerator::generateCode(ASTNode* root) {
     if (!root) return;
 
-    if (root->value == "+") {
-        generateBinaryOperationCode("add", "$t1");
-    } else if (root->value == "-") {
-        generateBinaryOperationCode("sub", "$t1");
-    } else if (root->value == "*") {
-        generateBinaryOperationCode("mul", "$t1");
-    } else if (root->value == "/") {
+    if (root->type == ASTNodeType::ADD) {
+        generateBinaryOperationCode("add", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::SUB) {
+        generateBinaryOperationCode("sub", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::MUL) {
+        generateBinaryOperationCode("mul", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::DIV) {
         generateCode(root->children[0]);
         std::cout << "    addi $sp, $sp, -4" << std::endl;
         std::cout << "    sw $t0, 0($sp)" << std::endl;
@@ -20,19 +20,23 @@ void MIPSGenerator::generateCode(ASTNode* root) {
         std::cout << "    div $t1, $t0" << std::endl;
         std::cout << "    mflo $t0" << std::endl; // Результат деления помещается в регистр LO
         std::cout << "    addi $sp, $sp, 4" << std::endl;
-    } else {
+    } else if (root->type == ASTNodeType::NUMBER) {
         generateMoveInstruction(root->value);
+    } else if (root->type == ASTNodeType::VARIABLE) {
+        std::cout << "    lw $t0, " << root->value << std::endl; // Подразумевается, что переменные хранятся в памяти
+    } else {
+        std::cerr << "Error: Unsupported AST node type for code generation." << std::endl;
     }
 }
 
 // Генерация кода для бинарных операций
-void MIPSGenerator::generateBinaryOperationCode(const std::string& operation, const std::string& reg) {
-    generateCode(root->children[0]);
+void MIPSGenerator::generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right) {
+    generateCode(left);
     std::cout << "    addi $sp, $sp, -4" << std::endl;
     std::cout << "    sw $t0, 0($sp)" << std::endl;
-    generateCode(root->children[1]);
-    std::cout << "    lw " << reg << ", 0($sp)" << std::endl;
-    std::cout << "    " << operation << " $t0, " << reg << ", $t0" << std::endl;
+    generateCode(right);
+    std::cout << "    lw $t1, 0($sp)" << std::endl;
+    std::cout << "    " << operation << " $t0, $t1, $t0" << std::endl;
     std::cout << "    addi $sp, $sp, 4" << std::endl;
 }
 
