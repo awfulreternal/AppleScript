@@ -21,8 +21,8 @@
 1. **Клонирование репозитория**:
 
     ```bash
-    git clone https://github.com/your-repo/apple_script.git
-    cd apple_script
+    git clone https://github.com/awfulreternal/AppleScript.git
+    cd AppleScript
     ```
 
 2. **Создание каталога для сборки**:
@@ -49,7 +49,7 @@
     Используйте исполняемый файл `applescript` для компиляции и запуска ваших `.apple` файлов:
 
     ```bash
-    ./applescript path/to/your_script.apple
+    ./AppleScript path/to/your_script.apple
     ```
 
 ## Основной синтаксис
