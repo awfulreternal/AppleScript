@@ -4,23 +4,43 @@
 #include <string>
 #include <vector>
 
-// Класс для работы с Telegram API
+/**
+ * @class TelegramBot
+ * @brief Класс для работы с Telegram Bot API.
+ * 
+ * Этот класс предоставляет методы для отправки сообщений и получения обновлений от Telegram.
+ */
 class TelegramBot {
 public:
-    // Конструктор, принимающий токен бота
+    /**
+     * @brief Конструктор класса.
+     * @param token Токен бота, полученный от BotFather в Telegram.
+     */
     explicit TelegramBot(const std::string& token);
 
-    // Метод для отправки текстового сообщения в указанный чат
+    /**
+     * @brief Отправляет текстовое сообщение в указанный чат.
+     * @param chatId Идентификатор чата, в который нужно отправить сообщение.
+     * @param message Сообщение, которое будет отправлено.
+     * @return true, если сообщение успешно отправлено, иначе false.
+     */
     bool sendMessage(const std::string& chatId, const std::string& message);
 
-    // Метод для получения обновлений (новых сообщений) из Telegram
+    /**
+     * @brief Получает обновления (новые сообщения) из Telegram.
+     * @return Вектор строк, содержащий текст новых сообщений.
+     */
     std::vector<std::string> getUpdates();
 
 private:
-    std::string token; // Токен для аутентификации в Telegram API
-    const std::string apiUrl; // URL для доступа к API Telegram
+    std::string token; ///< Токен для аутентификации в Telegram API.
+    const std::string apiUrl; ///< URL для доступа к Telegram Bot API.
 
-    // Метод для выполнения HTTP-запроса по указанному URL
+    /**
+     * @brief Выполняет HTTP-запрос по указанному URL.
+     * @param url URL, на который будет отправлен запрос.
+     * @return Ответ на запрос в виде строки.
+     */
     std::string performRequest(const std::string& url);
 };
 
