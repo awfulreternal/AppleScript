@@ -1,10 +1,13 @@
 #include "as_threading.h"
 #include <iostream>
+#include <functional>
+#include <thread>
 
 namespace as {
 
 // Конструктор класса Thread, принимает функцию для выполнения в новом потоке
-Thread::Thread(std::function<void()> func) : thread(func), isRunning(false) {}
+Thread::Thread(std::function<void()> func) 
+    : func(std::move(func)), thread(), isRunning(false) {}
 
 // Метод для запуска потока
 void Thread::start() {
