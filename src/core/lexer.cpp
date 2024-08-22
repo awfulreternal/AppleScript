@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <stdexcept>
 #include <iterator>
+#include <iostream>
 
 // Определение ключевых слов
 const std::unordered_set<std::string> KEYWORDS = {
@@ -11,22 +12,27 @@ const std::unordered_set<std::string> KEYWORDS = {
 };
 
 // Конструктор лексера, принимающий имя файла
-Lexer::Lexer(const std::string& filename) {
+Lexer::Lexer(const std::string& filename) : currentIndex(0), currentChar('\0') {
     std::ifstream file(filename);
     if (!file) {
         throw std::runtime_error("Failed to open file: " + filename);
     }
     source.assign((std::istreambuf_iterator<char>(file)),
                   std::istreambuf_iterator<char>());
-    currentIndex = 0;
-    currentChar = (source.empty()) ? '\0' : source[currentIndex];
+    if (!source.empty()) {
+        currentChar = source[currentIndex];
+    }
 }
 
 // Перемещение к следующему символу
 void Lexer::advance() {
-    ++currentIndex;
     if (currentIndex < source.length()) {
-        currentChar = source[currentIndex];
+        ++currentIndex;
+        if (currentIndex < source.length()) {
+            currentChar = source[currentIndex];
+        } else {
+            currentChar = '\0';
+        }
     } else {
         currentChar = '\0';
     }
@@ -59,6 +65,7 @@ Token Lexer::getNextToken() {
             return punct();
         }
 
+        std::cerr << "Error: Unknown character: " << currentChar << std::endl;
         throw std::runtime_error("Unknown character: " + std::string(1, currentChar));
     }
 
@@ -91,6 +98,7 @@ Token Lexer::keywordToken(const std::string& keyword) const {
     if (keyword == "for") return {TOKEN_FOR, keyword};
     if (keyword == "while") return {TOKEN_WHILE, keyword};
     
+    std::cerr << "Error: Unexpected keyword: " << keyword << std::endl;
     throw std::runtime_error("Unexpected keyword: " + keyword);
 }
 
