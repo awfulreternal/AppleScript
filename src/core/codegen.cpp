@@ -2,13 +2,13 @@
 #include <sstream>
 
 // Генерация кода для класса
-std::string CodeGenerator::generateClassCode(ASTNode* node) {
+std::string CodeGenerator::generateClassCode(const ASTNode& node) const {
     std::stringstream ss;
-    ss << "Class " << node->getName() << " {\n";
+    ss << "Class " << node.value << " {\n";
     
-    for (const auto& child : node->getChildren()) {
-        if (child->getType() == "Function") {
-            ss << "  " << generateFunctionCode(child) << "\n";
+    for (const auto& child : node.children) {
+        if (child->type == "Function") {
+            ss << "  " << generateFunctionCode(*child) << "\n";
         }
     }
     ss << "}";
@@ -16,45 +16,45 @@ std::string CodeGenerator::generateClassCode(ASTNode* node) {
 }
 
 // Генерация кода для функции
-std::string CodeGenerator::generateFunctionCode(ASTNode* node) {
+std::string CodeGenerator::generateFunctionCode(const ASTNode& node) const {
     std::stringstream ss;
-    ss << "Function " << node->getName() << " {\n";
+    ss << "Function " << node.value << " {\n";
     
-    for (const auto& child : node->getChildren()) {
-        ss << "  " << generateExpressionCode(child) << "\n";
+    for (const auto& child : node.children) {
+        ss << "  " << generateExpressionCode(*child) << "\n";
     }
     ss << "}";
     return ss.str();
 }
 
 // Генерация кода для выражения
-std::string CodeGenerator::generateExpressionCode(ASTNode* node) {
+std::string CodeGenerator::generateExpressionCode(const ASTNode& node) const {
     std::stringstream ss;
-    if (node->getType() == "Operator") {
-        ss << "Op(" << node->getValue() << ")";
-    } else if (node->getType() == "Number") {
-        ss << "Num(" << node->getValue() << ")";
-    } else if (node->getType() == "Identifier") {
-        ss << "Var(" << node->getValue() << ")";
+    if (node.type == "Operator") {
+        ss << "Op(" << node.value << ")";
+    } else if (node.type == "Number") {
+        ss << "Num(" << node.value << ")";
+    } else if (node.type == "Identifier") {
+        ss << "Var(" << node.value << ")";
     } else {
-        ss << "UnknownNode(" << node->getValue() << ")";
+        ss << "UnknownNode(" << node.value << ")";
     }
     return ss.str();
 }
 
 // Генерация промежуточного и объектного кода
-void CodeGenerator::generate(ASTNode* root) {
+void CodeGenerator::generate(const std::unique_ptr<ASTNode>& root) {
     if (!root) return;
 
     std::stringstream irStream;
     irStream << "START\n";
     
-    if (root->getType() == "Class") {
-        irStream << generateClassCode(root) << "\n";
-    } else if (root->getType() == "Function") {
-        irStream << generateFunctionCode(root) << "\n";
+    if (root->type == "Class") {
+        irStream << generateClassCode(*root) << "\n";
+    } else if (root->type == "Function") {
+        irStream << generateFunctionCode(*root) << "\n";
     } else {
-        irStream << generateExpressionCode(root) << "\n";
+        irStream << generateExpressionCode(*root) << "\n";
     }
     
     irStream << "END";
