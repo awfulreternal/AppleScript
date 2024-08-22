@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory> // Для использования std::unique_ptr
 
 // Базовый класс для всех узлов AST
 class ASTNode {
@@ -29,21 +30,21 @@ private:
 // Узел для оператора (например, +, -, *, /)
 class OperatorNode : public ASTNode {
 public:
-    OperatorNode(const std::string& op, ASTNode* left, ASTNode* right)
-        : op(op), left(left), right(right) {}
+    OperatorNode(const std::string& op, std::unique_ptr<ASTNode> left, std::unique_ptr<ASTNode> right)
+        : op(op), left(std::move(left)), right(std::move(right)) {}
 
-    ~OperatorNode() override;
+    ~OperatorNode() override = default;
 
     void print(int indent = 0) const override;
 
     const std::string& getOperator() const { return op; }
-    ASTNode* getLeft() const { return left; }
-    ASTNode* getRight() const { return right; }
+    const ASTNode* getLeft() const { return left.get(); }
+    const ASTNode* getRight() const { return right.get(); }
 
 private:
     std::string op;
-    ASTNode* left;
-    ASTNode* right;
+    std::unique_ptr<ASTNode> left;
+    std::unique_ptr<ASTNode> right;
 };
 
 // Узел для переменной
@@ -62,34 +63,36 @@ private:
 // Узел для выражения присваивания
 class AssignmentNode : public ASTNode {
 public:
-    AssignmentNode(const std::string& varName, ASTNode* expr)
-        : varName(varName), expr(expr) {}
+    AssignmentNode(const std::string& varName, std::unique_ptr<ASTNode> expr)
+        : varName(varName), expr(std::move(expr)) {}
 
-    ~AssignmentNode() override;
+    ~AssignmentNode() override = default;
 
     void print(int indent = 0) const override;
 
     const std::string& getVariableName() const { return varName; }
-    ASTNode* getExpression() const { return expr; }
+    const ASTNode* getExpression() const { return expr.get(); }
 
 private:
     std::string varName;
-    ASTNode* expr;
+    std::unique_ptr<ASTNode> expr;
 };
 
 // Узел для блока кода (набор инструкций)
 class BlockNode : public ASTNode {
 public:
-    void addStatement(ASTNode* statement) { statements.push_back(statement); }
+    void addStatement(std::unique_ptr<ASTNode> statement) {
+        statements.push_back(std::move(statement));
+    }
 
-    ~BlockNode() override;
+    ~BlockNode() override = default;
 
     void print(int indent = 0) const override;
 
-    const std::vector<ASTNode*>& getStatements() const { return statements; }
+    const std::vector<std::unique_ptr<ASTNode>>& getStatements() const { return statements; }
 
 private:
-    std::vector<ASTNode*> statements;
+    std::vector<std::unique_ptr<ASTNode>> statements;
 };
 
 #endif // AST_H
