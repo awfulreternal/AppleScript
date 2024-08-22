@@ -1,17 +1,21 @@
 #ifndef ARM_H
 #define ARM_H
 
-#include "parser.h"
+#include "ast.h"
 #include <string>
 
-// Класс для генерации и оптимизации кода ARM
 class ARMGenerator {
 public:
-    // Генерация кода ARM из AST
+    // Генерация кода для ARM
     void generateCode(ASTNode* root);
 
-    // Оптимизация кода ARM
+    // Оптимизация кода для ARM
     void optimizeCode(std::string& assemblyCode);
+
+private:
+    // Утилитные функции
+    void generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right);
+    void generateMoveInstruction(const std::string& value);
 };
 
 #endif // ARM_H
