@@ -1,20 +1,26 @@
-// Пример простого кода на AppleScript
-
 #include <iostream>
 #include "as_network.h"
 
 int main() {
-    // Используем пространство имен as для печати
+    // Используем функцию as::print для вывода текста
     as::print("Hello, AppleScript!");
 
     // Создаем объект клиента сети
-    NetworkClient client;
+    as_network::NetworkClient client;
 
-    // Подключаемся к локальному хосту
-    client.connect("127.0.0.1");
+    // Подключаемся к локальному серверу на порту 8080
+    if (client.connect("127.0.0.1", 8080)) {
+        as::print("Connected to server!");
 
-    // Отправляем данные
-    client.sendData("Hello, Network!");
+        // Отправляем данные серверу
+        client.sendData("Hello, Network!");
+
+        // Получаем ответ от сервера
+        std::string response = client.receiveData();
+        as::print("Server response: " + response);
+    } else {
+        as::print("Failed to connect to server.");
+    }
 
     return 0;
 }
