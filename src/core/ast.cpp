@@ -1,6 +1,8 @@
 #include "ast.h"
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <vector>
 
 // Реализация для NumberNode
 void NumberNode::print(int indent) const {
@@ -8,10 +10,7 @@ void NumberNode::print(int indent) const {
 }
 
 // Реализация для OperatorNode
-OperatorNode::~OperatorNode() {
-    delete left; // Освобождение памяти для левого дочернего узла
-    delete right; // Освобождение памяти для правого дочернего узла
-}
+OperatorNode::~OperatorNode() = default; // Удаление освобождения памяти; умные указатели будут сами управлять этим
 
 void OperatorNode::print(int indent) const {
     std::cout << std::setw(indent) << "" << "Operator: " << op << std::endl;
@@ -25,9 +24,7 @@ void VariableNode::print(int indent) const {
 }
 
 // Реализация для AssignmentNode
-AssignmentNode::~AssignmentNode() {
-    delete expr; // Освобождение памяти для выражения
-}
+AssignmentNode::~AssignmentNode() = default; // Удаление освобождения памяти; умные указатели будут сами управлять этим
 
 void AssignmentNode::print(int indent) const {
     std::cout << std::setw(indent) << "" << "Assignment: " << varName << std::endl;
@@ -35,15 +32,13 @@ void AssignmentNode::print(int indent) const {
 }
 
 // Реализация для BlockNode
-BlockNode::~BlockNode() {
-    for (ASTNode* stmt : statements) {
-        delete stmt; // Освобождение памяти для каждого элемента в блоке
-    }
+void BlockNode::addStatement(std::unique_ptr<ASTNode> stmt) {
+    statements.push_back(std::move(stmt));
 }
 
 void BlockNode::print(int indent) const {
     std::cout << std::setw(indent) << "" << "Block:" << std::endl;
-    for (const ASTNode* stmt : statements) {
+    for (const auto& stmt : statements) {
         if (stmt) stmt->print(indent + 2); // Печать каждого узла блока с увеличенным отступом
     }
 }
