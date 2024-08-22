@@ -1,7 +1,7 @@
 #include <iostream>
 #include "as_network.h"
 
-int main() {
+function main() {
     // Используем функцию as::print для вывода текста
     as::print("Hello, AppleScript!");
 
@@ -9,18 +9,27 @@ int main() {
     as_network::NetworkClient client;
 
     // Подключаемся к локальному серверу на порту 8080
-    if (client.connect("127.0.0.1", 8080)) {
+    const address = "127.0.0.1";
+    const port = 8080;
+
+    if (client.connect(address, port)) {
         as::print("Connected to server!");
 
         // Отправляем данные серверу
-        client.sendData("Hello, Network!");
+        const message = "Hello, Network!";
+        if (client.sendData(message)) {
+            as::print("Data sent successfully.");
 
-        // Получаем ответ от сервера
-        std::string response = client.receiveData();
-        as::print("Server response: " + response);
+            // Получаем ответ от сервера
+            response = client.receiveData();
+            as::print("Server response: " + response);
+        } else {
+            as::print("Failed to send data.");
+        }
     } else {
         as::print("Failed to connect to server.");
     }
-
-    return 0;
 }
+
+// Запуск основной функции
+main();
