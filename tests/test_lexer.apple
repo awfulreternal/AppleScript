@@ -1,21 +1,21 @@
-// Пример теста для проверки лексера
+-- Пример теста для проверки лексера
 set testString to "let x = 10;"
 set expectedToken to "LET"
 
-// Выполнение теста (в реальном проекте здесь должен быть код для запуска лексера)
-function testLexer(inputString) {
-    // Здесь должен быть код для инициализации и запуска лексера
-    // Пример: Token token = lexer.tokenize(inputString);
-    // Для демонстрации будем использовать фиктивный результат
-    string token = "LET"; // Здесь должна быть реальная лексическая единица, возвращенная лексером
+-- Функция для тестирования лексера
+on testLexer(inputString)
+    -- Здесь должен быть код для инициализации и запуска лексера
+    -- Пример: set token to lexerTokenize(inputString)
+    -- Для демонстрации используем фиктивный результат
+    set token to "LET" -- Здесь должна быть реальная лексическая единица, возвращенная лексером
 
-    // Проверка результата
-    if (token == expectedToken) {
+    -- Проверка результата
+    if token is equal to expectedToken then
         display dialog "Test Passed: Lexer correctly identified token: " & token
-    } else {
+    else
         display dialog "Test Failed: Lexer identified token as: " & token
-    }
-}
+    end if
+end testLexer
 
-// Запуск теста
+-- Запуск теста
 testLexer(testString)
