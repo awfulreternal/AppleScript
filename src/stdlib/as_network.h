@@ -4,32 +4,35 @@
 #include <string>
 
 /**
- * @brief Класс для работы с сетевыми операциями.
- * 
- * Предоставляет методы для подключения к серверу, отправки и получения данных.
+ * @class NetworkClient
+ * @brief Класс для работы с сетевыми соединениями, позволяющий подключаться к серверу, отправлять и получать данные.
  */
 class NetworkClient {
 public:
     /**
-     * @brief Подключение к серверу.
-     * 
-     * @param address Адрес сервера для подключения.
+     * @brief Подключается к серверу по указанному адресу и порту.
+     * @param address Адрес сервера для подключения (IP-адрес или доменное имя).
+     * @param port Порт сервера для подключения.
+     * @return true, если подключение успешно; false в противном случае.
      */
-    void connect(const std::string& address);
+    bool connect(const std::string& address, int port);
 
     /**
-     * @brief Отправка данных на сервер.
-     * 
+     * @brief Отправляет данные на сервер.
      * @param data Данные, которые необходимо отправить.
+     * @return true, если отправка успешна; false в противном случае.
      */
-    void sendData(const std::string& data);
+    bool sendData(const std::string& data);
 
     /**
-     * @brief Получение данных от сервера.
-     * 
+     * @brief Получает данные от сервера.
      * @return std::string Данные, полученные от сервера.
      */
     std::string receiveData();
+
+private:
+    int sockfd;  ///< Дескриптор сокета
+    bool isConnected; ///< Флаг, указывающий, подключен ли клиент
 };
 
 #endif // AS_NETWORK_H
