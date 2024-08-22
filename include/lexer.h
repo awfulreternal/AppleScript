@@ -5,20 +5,20 @@
 #include <unordered_set>
 
 // Определение типов токенов
-enum TokenType {
-    TOKEN_EOF,
-    TOKEN_IDENTIFIER,
-    TOKEN_NUMBER,
-    TOKEN_OPERATOR,
-    TOKEN_PUNCTUATION,
-    TOKEN_CLASS,
-    TOKEN_FUNCTION,
-    TOKEN_ASYNC,
-    TOKEN_AWAIT,
-    TOKEN_IF,
-    TOKEN_ELSE,
-    TOKEN_FOR,
-    TOKEN_WHILE
+enum class TokenType {
+    EOF_TOKEN,       // Конец файла
+    IDENTIFIER,      // Идентификатор
+    NUMBER,          // Число
+    OPERATOR,        // Оператор
+    PUNCTUATION,     // Знак препинания
+    CLASS,           // Ключевое слово "class"
+    FUNCTION,        // Ключевое слово "function"
+    ASYNC,           // Ключевое слово "async"
+    AWAIT,           // Ключевое слово "await"
+    IF,              // Ключевое слово "if"
+    ELSE,            // Ключевое слово "else"
+    FOR,             // Ключевое слово "for"
+    WHILE            // Ключевое слово "while"
 };
 
 // Структура токена
@@ -26,7 +26,7 @@ struct Token {
     TokenType type;  // Тип токена
     std::string value;  // Значение токена
 
-    Token(TokenType type = TOKEN_EOF, const std::string& value = "")
+    Token(TokenType type = TokenType::EOF_TOKEN, const std::string& value = "")
         : type(type), value(value) {}
 };
 
@@ -58,6 +58,9 @@ private:
     std::string source;  // Исходный код
     size_t currentIndex;  // Индекс текущего символа
     char currentChar;  // Текущий символ
+
+    // Множество ключевых слов
+    static const std::unordered_set<std::string> KEYWORDS;
 };
 
 #endif // LEXER_H
