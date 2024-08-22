@@ -9,14 +9,19 @@
 #include "error_handler.h"
 #include "logger.h"  // Добавлен для логирования
 
-/**
- * Функция для очистки ресурсов.
- * @param root Указатель на корневой узел AST.
- */
+// Функция для очистки ресурсов
 void cleanup(std::unique_ptr<ASTNode>& root) {
-    // Очистка дерева AST и других ресурсов
     root.reset();  // Уменьшает вероятность утечек памяти
     g_errorHandler.clear();  // Очистка обработчика ошибок
+}
+
+// Функция для проверки и обработки ошибок
+bool checkForErrors() {
+    if (g_errorHandler.hasErrors()) {
+        g_errorHandler.printErrors();
+        return true;
+    }
+    return false;
 }
 
 int main(int argc, char* argv[]) {
@@ -31,14 +36,11 @@ int main(int argc, char* argv[]) {
 
     // Лексический анализ
     Lexer lexer(argv[1]);
-    if (g_errorHandler.hasErrors()) {
-        g_errorHandler.printErrors();
-        return 1;
-    }
+    if (checkForErrors()) return 1;
 
     // Парсинг исходного кода в AST
     Parser parser(lexer);
-    std::unique_ptr<ASTNode> root = nullptr;
+    std::unique_ptr<ASTNode> root;
     try {
         root.reset(parser.parse());
     } catch (const std::exception& e) {
@@ -46,41 +48,37 @@ int main(int argc, char* argv[]) {
         g_errorHandler.printErrors();
         return 1;
     }
-
-    if (g_errorHandler.hasErrors()) {
-        g_errorHandler.printErrors();
-        return 1;
-    }
+    
+    if (checkForErrors()) return 1;
 
     // Семантический анализ
     SemanticAnalyzer semanticAnalyzer;
     if (!semanticAnalyzer.analyze(root.get())) {
-        g_errorHandler.printErrors();
+        checkForErrors();
         return 1;
     }
 
     // Генерация промежуточного кода
     CodeGenerator codegen;
-    codegen.generate(root.get());
+    codegen.generate(root);
 
     // Оптимизация промежуточного кода
     Optimizer optimizer;
-    optimizer.optimize(codegen.getIR());
+    std::string irCode = codegen.getIR();
+    optimizer.optimize(irCode);
 
     // Линковка и компиляция в объектный код
     Linker linker;
     try {
-        linker.link(codegen.getObjectCode(), "output.o");
+        std::string objectCode = codegen.getObjectCode();
+        linker.link(objectCode, "output.o");
     } catch (const std::exception& e) {
         g_errorHandler.addError(ErrorType::RUNTIME_ERROR, e.what(), 0, 0);  // Уточните параметры строки и столбца
         g_errorHandler.printErrors();
         return 1;
     }
 
-    if (g_errorHandler.hasErrors()) {
-        g_errorHandler.printErrors();
-        return 1;
-    }
+    if (checkForErrors()) return 1;
 
     std::cout << "Compilation finished successfully. Output file: output.o" << std::endl;
 
