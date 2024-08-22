@@ -5,7 +5,7 @@
 
 class Optimizer {
 public:
-    // Метод для оптимизации промежуточного кода (IR)
+    // Метод для оптимизации промежуточного кода
     void optimize(std::string& irCode);
 };
 
