@@ -7,7 +7,7 @@ project(AppleScript)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Добавляем исходные файлы для сборки
+# Добавляем исходные файлы
 set(SOURCE_FILES
     core/lexer.cpp
     core/parser.cpp
@@ -30,14 +30,28 @@ set(SOURCE_FILES
 # Создаем исполняемый файл
 add_executable(applescript ${SOURCE_FILES})
 
-# Указываем зависимости, например, cURL для as_network.cpp
+# Указываем зависимости
 find_package(CURL REQUIRED)
 target_link_libraries(applescript PRIVATE CURL::libcurl)
 
-# Добавляем папку с заголовочными файлами
-include_directories(include)
+# Добавляем директории с заголовочными файлами
+target_include_directories(applescript PRIVATE 
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/core
+    ${CMAKE_SOURCE_DIR}/stdlib
+)
 
-# Указание флагов компиляции для Windows и macOS
+# Указание флагов компиляции
+target_compile_options(applescript PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+)
+
+# Установка флагов для отладки
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+
+# Настройки платформ
 if(WIN32)
     # Настройки для Windows
     target_compile_definitions(applescript PRIVATE PLATFORM_WINDOWS)
@@ -46,8 +60,6 @@ elseif(APPLE)
     target_compile_definitions(applescript PRIVATE PLATFORM_MACOS)
 endif()
 
-# Включаем предупреждения и ошибки компиляции
-target_compile_options(applescript PRIVATE -Wall -Wextra -Werror)
-
-# Включаем отладочную информацию
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+# Оптимизация и сборка
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
