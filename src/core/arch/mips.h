@@ -1,17 +1,25 @@
 #ifndef MIPS_H
 #define MIPS_H
 
-#include "parser.h"
+#include "ast.h"
 #include <string>
 
-// Класс для генерации и оптимизации MIPS-кода
 class MIPSGenerator {
 public:
-    // Генерация MIPS-кода из абстрактного синтаксического дерева
+    // Генерация кода для MIPS
     void generateCode(ASTNode* root);
 
-    // Оптимизация MIPS-кода для улучшения производительности
+    // Оптимизация кода для MIPS
     void optimizeCode(std::string& assemblyCode);
+
+private:
+    // Утилитные функции для генерации инструкций
+    void generateBinaryOperationCode(const std::string& operation, const std::string& reg);
+    void generateMoveInstruction(const std::string& value);
+
+    // Оптимизация инструкций
+    void removeRedundantStackOperations(std::string& assemblyCode);
+    void applyPeepholeOptimizations(std::string& assemblyCode);
 };
 
 #endif // MIPS_H
