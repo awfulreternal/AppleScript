@@ -7,24 +7,31 @@ void threadFunction() {
 }
 
 int main() {
-    // Создаем объект потока и передаем ему функцию для выполнения
-    as_threading::Thread thread(threadFunction);
+    try {
+        // Создаем объект потока и передаем ему функцию для выполнения
+        as_threading::Thread thread(threadFunction);
 
-    // Запускаем поток
-    thread.start();
+        // Запускаем поток
+        thread.start();
 
-    // Проверяем, идет ли выполнение потока
-    if (thread.isRunning()) {
-        std::cout << "Thread started successfully." << std::endl;
-    } else {
-        std::cerr << "Failed to start the thread." << std::endl;
+        // Проверяем, идет ли выполнение потока
+        if (thread.isRunning()) {
+            std::cout << "Thread started successfully." << std::endl;
+        } else {
+            std::cerr << "Failed to start the thread." << std::endl;
+            return 1;  // Выход из программы с кодом ошибки
+        }
+
+        // Ожидаем завершения потока
+        thread.join();
+
+        // Уведомление о завершении работы потока
+        std::cout << "Thread has finished execution." << std::endl;
+    } catch (const std::exception& e) {
+        // Обработка исключений, если что-то пошло не так
+        std::cerr << "An error occurred: " << e.what() << std::endl;
+        return 1;  // Выход из программы с кодом ошибки
     }
-
-    // Ожидаем завершения потока
-    thread.join();
-
-    // Уведомление о завершении работы потока
-    std::cout << "Thread has finished execution." << std::endl;
 
     return 0;
 }
