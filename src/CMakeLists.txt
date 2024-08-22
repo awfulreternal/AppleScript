@@ -1,12 +1,3 @@
-cmake_minimum_required(VERSION 3.10)
-
-# Название проекта
-project(AppleScript)
-
-# Указываем стандарт языка C++
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-
 # Добавляем исходные файлы
 set(SOURCE_FILES
     core/lexer.cpp
@@ -34,7 +25,7 @@ add_executable(applescript ${SOURCE_FILES})
 find_package(CURL REQUIRED)
 target_link_libraries(applescript PRIVATE CURL::libcurl)
 
-# Добавляем директории с заголовочными файлами
+# Указываем директории с заголовочными файлами
 target_include_directories(applescript PRIVATE 
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/core
@@ -53,10 +44,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 # Настройки платформ
 if(WIN32)
-    # Настройки для Windows
     target_compile_definitions(applescript PRIVATE PLATFORM_WINDOWS)
 elseif(APPLE)
-    # Настройки для macOS
     target_compile_definitions(applescript PRIVATE PLATFORM_MACOS)
 endif()
 
