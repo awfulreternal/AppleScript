@@ -2,7 +2,7 @@
 #include <iostream>
 #include <mutex>
 
-// Инициализация статического члена verbose и мьютекса
+// Инициализация статических членов
 bool Logger::verbose = false;
 std::mutex Logger::mutex;
 
@@ -16,9 +16,9 @@ void Logger::error(const std::string& message) {
     std::cerr << "ERROR: " << message << std::endl;
 }
 
-// Вывод отладочного сообщения, если включен verbose режим
+// Вывод отладочного сообщения, если включен режим verbose
 void Logger::debug(const std::string& message) {
-    std::lock_guard<std::mutex> lock(mutex); // Защита доступа к переменной verbose
+    std::lock_guard<std::mutex> lock(mutex);  // Защита доступа к переменной verbose
     if (verbose) {
         std::cout << "DEBUG: " << message << std::endl;
     }
@@ -26,6 +26,6 @@ void Logger::debug(const std::string& message) {
 
 // Установка режима verbose
 void Logger::setVerbose(bool v) {
-    std::lock_guard<std::mutex> lock(mutex); // Защита доступа к переменной verbose
+    std::lock_guard<std::mutex> lock(mutex);  // Защита доступа к переменной verbose
     verbose = v;
 }
