@@ -25,7 +25,6 @@ void ErrorHandler::writeErrorsToFile(const std::string& filename) const {
         for (const auto& error : errors) {
             file << formatError(error) << std::endl;
         }
-        file.close();
     } else {
         std::cerr << "Unable to open file for writing errors." << std::endl;
     }
