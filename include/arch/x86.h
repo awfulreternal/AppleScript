@@ -14,7 +14,7 @@ public:
 
 private:
     // Утилитные функции для генерации инструкций
-    void generateBinaryOperationCode(const std::string& operation, const std::string& reg);
+    void generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right);
     void generateMoveInstruction(const std::string& value);
 
     // Оптимизация инструкций
