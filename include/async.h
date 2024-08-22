@@ -12,7 +12,7 @@ class AsyncTask {
 public:
     // Конструктор для создания асинхронной задачи
     explicit AsyncTask(std::function<void()> task)
-        : taskFunction(std::move(task)), taskFuture(std::async(std::launch::async, [this] { taskFunction(); })) {}
+        : taskFunction(std::move(task)), taskFuture(std::async(std::launch::async, taskFunction)) {}
 
     // Проверка статуса задачи
     bool isReady() const {
@@ -39,8 +39,22 @@ public:
 
     // Запуск всех асинхронных задач
     void runTasks() {
+        // Запуск всех задач
         for (auto& task : tasks) {
             task.get();
+        }
+        tasks.clear();
+    }
+
+    // Запуск всех задач и ожидание их завершения
+    void runAndWaitTasks() {
+        std::vector<std::future<void>> futures;
+        for (auto& task : tasks) {
+            futures.push_back(std::async(std::launch::async, [task]() { task.get(); }));
+        }
+        // Ожидание завершения всех задач
+        for (auto& future : futures) {
+            future.get();
         }
         tasks.clear();
     }
