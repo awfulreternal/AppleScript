@@ -1,21 +1,28 @@
--- Пример теста для проверки лексера
+-- Пример строки для тестирования и ожидаемого результата
 set testString to "let x = 10;"
 set expectedToken to "LET"
 
 -- Функция для тестирования лексера
-on testLexer(inputString)
+on testLexer(inputString, expectedToken)
     -- Здесь должен быть код для инициализации и запуска лексера
     -- Пример: set token to lexerTokenize(inputString)
     -- Для демонстрации используем фиктивный результат
-    set token to "LET" -- Здесь должна быть реальная лексическая единица, возвращенная лексером
+    set token to lexerTokenize(inputString) -- Здесь должна быть реальная лексическая единица, возвращенная лексером
 
     -- Проверка результата
     if token is equal to expectedToken then
         display dialog "Test Passed: Lexer correctly identified token: " & token
     else
-        display dialog "Test Failed: Lexer identified token as: " & token
+        display dialog "Test Failed: Lexer identified token as: " & token & ". Expected: " & expectedToken
     end if
 end testLexer
 
+-- Функция-заглушка для демонстрации
+on lexerTokenize(inputString)
+    -- Реализация лексера должна быть здесь. Эта функция возвращает токен.
+    -- В данном примере возвращаем фиксированное значение для демонстрации.
+    return "LET"
+end lexerTokenize
+
 -- Запуск теста
-testLexer(testString)
+testLexer(testString, expectedToken)
