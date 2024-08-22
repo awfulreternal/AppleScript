@@ -33,10 +33,33 @@ private:
     std::string irCode;        ///< Промежуточный код.
     std::string objectCode;    ///< Объектный код.
 
-    // Приватные вспомогательные методы для генерации кода.
+    /**
+     * @brief Генерация кода для класса.
+     * @param node Узел AST, представляющий класс.
+     * @return Код для класса.
+     */
     std::string generateClassCode(const ASTNode& node) const;
+
+    /**
+     * @brief Генерация кода для функции.
+     * @param node Узел AST, представляющий функцию.
+     * @return Код для функции.
+     */
     std::string generateFunctionCode(const ASTNode& node) const;
+
+    /**
+     * @brief Генерация кода для выражения.
+     * @param node Узел AST, представляющий выражение.
+     * @return Код для выражения.
+     */
     std::string generateExpressionCode(const ASTNode& node) const;
+
+    /**
+     * @brief Генерация кода для узла типа "Unknown".
+     * @param node Узел AST, представляющий неизвестный тип.
+     * @return Код для неизвестного типа.
+     */
+    std::string generateUnknownNodeCode(const ASTNode& node) const;
 };
 
 #endif // CODEGEN_H
