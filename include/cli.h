@@ -46,6 +46,13 @@ private:
     std::string sourceFile;  ///< Путь к исходному файлу.
     bool verbose;            ///< Флаг, указывающий, включен ли verbose режим.
     bool optimize;           ///< Флаг, указывающий, требуется ли оптимизация кода.
+
+    /**
+     * @brief Проверка, имеет ли файл допустимое расширение.
+     * @param filename Имя файла.
+     * @return true, если у файла допустимое расширение; иначе false.
+     */
+    bool hasValidExtension(const std::string& filename) const;
 };
 
 #endif // CLI_H
