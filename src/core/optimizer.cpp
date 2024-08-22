@@ -35,12 +35,12 @@ std::string removeDeadCode(const std::string& code) {
 }
 
 void Optimizer::optimize(std::string& irCode) {
-    // Пример оптимизации: удаление лишних пробелов
+    // Применение оптимизации: удаление лишних пробелов
     irCode = removeSpaces(irCode);
 
-    // Пример оптимизации: удаление мертвого кода
+    // Применение оптимизации: удаление мертвого кода
     irCode = removeDeadCode(irCode);
 
-    // Дополнительные оптимизации можно добавить сюда
+    // Дополнительные оптимизации могут быть добавлены здесь
     std::cout << "Optimizations applied successfully." << std::endl;
 }
