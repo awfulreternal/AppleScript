@@ -15,7 +15,7 @@ AppleScript — это мощный язык программирования, �
 1. **Клонирование репозитория**:
 
     ```bash
-    git clone https://github.com/your-repo/apple_script.git
+    git clone https://github.com/awfulreternal/AppleScript.git
     cd apple_script
     ```
 
