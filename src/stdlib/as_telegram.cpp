@@ -39,10 +39,13 @@ std::string TelegramBot::performRequest(const std::string& url) {
 
 // Отправка текстового сообщения
 bool TelegramBot::sendMessage(const std::string& chatId, const std::string& message) {
-    std::string escapedMessage = curl_easy_escape(nullptr, message.c_str(), message.size());
+    // Экранирование сообщения для URL
+    char* escapedMessage = curl_easy_escape(nullptr, message.c_str(), message.size());
     std::string url = apiUrl + "sendMessage?chat_id=" + chatId + "&text=" + escapedMessage;
     std::string response = performRequest(url);
+    curl_free(escapedMessage); // Освобождение ресурсов после использования
 
+    // Парсинг JSON ответа
     Json::Value jsonResponse;
     Json::CharReaderBuilder readerBuilder;
     std::istringstream responseStream(response);
@@ -59,6 +62,7 @@ std::vector<std::string> TelegramBot::getUpdates() {
     std::string url = apiUrl + "getUpdates";
     std::string response = performRequest(url);
 
+    // Парсинг JSON ответа
     Json::Value jsonResponse;
     Json::CharReaderBuilder readerBuilder;
     std::istringstream responseStream(response);
