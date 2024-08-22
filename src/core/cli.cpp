@@ -1,6 +1,7 @@
 #include "cli.h"
 #include <iostream>
-#include <algorithm> // Для std::find_if
+#include <algorithm> // Для std::transform
+#include <cctype>    // Для std::tolower
 
 CLI::CLI(int argc, char* argv[])
     : argc(argc), argv(argv), verbose(false), optimize(false) {}
@@ -10,7 +11,10 @@ bool CLI::parseArguments() {
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        
+
+        // Приведение аргумента к нижнему регистру
+        std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
+
         if (arg == "--verbose") {
             verbose = true;
         } else if (arg == "--optimize") {
@@ -22,14 +26,22 @@ bool CLI::parseArguments() {
             std::cout << "  --optimize     Enable code optimization\n";
             std::cout << "  --help         Show this help message\n";
             return false;
-        } else if (arg.find_last_of('.') != std::string::npos) {
-            // Assuming that any argument with a dot is a source file
+        } else if (hasValidExtension(arg)) {
+            // Проверка, что аргумент является исходным файлом
             sourceFile = arg;
             hasSourceFile = true;
+        } else {
+            std::cerr << "Unknown argument: " << arg << std::endl;
+            return false;
         }
     }
 
-    return hasSourceFile;
+    if (!hasSourceFile) {
+        std::cerr << "Error: No source file specified.\n";
+        return false;
+    }
+
+    return true;
 }
 
 std::string CLI::getSourceFile() const {
@@ -42,4 +54,14 @@ bool CLI::isVerbose() const {
 
 bool CLI::shouldOptimize() const {
     return optimize;
+}
+
+bool CLI::hasValidExtension(const std::string& filename) const {
+    // Проверка расширения файла. Например, предполагаем, что исходные файлы имеют расширение ".as"
+    const std::string extension = ".as";
+    if (filename.size() > extension.size() && 
+        filename.compare(filename.size() - extension.size(), extension.size(), extension) == 0) {
+        return true;
+    }
+    return false;
 }
