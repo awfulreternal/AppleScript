@@ -2,6 +2,7 @@
 #define CODEGEN_H
 
 #include <string>
+#include <memory>
 #include "ast.h"
 
 /**
@@ -12,9 +13,9 @@ class CodeGenerator {
 public:
     /**
      * @brief Генерирует промежуточный и объектный код из корня AST.
-     * @param root Корневой узел AST.
+     * @param root Умный указатель на корневой узел AST.
      */
-    void generate(ASTNode* root);
+    void generate(const std::unique_ptr<ASTNode>& root);
 
     /**
      * @brief Получает промежуточный код.
@@ -33,9 +34,9 @@ private:
     std::string objectCode;    ///< Объектный код.
 
     // Приватные вспомогательные методы для генерации кода.
-    std::string generateClassCode(ASTNode* node);
-    std::string generateFunctionCode(ASTNode* node);
-    std::string generateExpressionCode(ASTNode* node);
+    std::string generateClassCode(const ASTNode& node) const;
+    std::string generateFunctionCode(const ASTNode& node) const;
+    std::string generateExpressionCode(const ASTNode& node) const;
 };
 
 #endif // CODEGEN_H
