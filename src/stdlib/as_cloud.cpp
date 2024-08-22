@@ -9,6 +9,8 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 }
 
 // Реализация класса для работы с облачными сервисами
+
+// Метод для загрузки файла на облачный сервер
 void CloudServiceClient::uploadFile(const std::string& filePath, const std::string& url) {
     std::cout << "Uploading file: " << filePath << " to URL: " << url << std::endl;
 
@@ -41,6 +43,7 @@ void CloudServiceClient::uploadFile(const std::string& filePath, const std::stri
     curl_easy_cleanup(curl);
 }
 
+// Метод для скачивания файла с облачного сервера
 void CloudServiceClient::downloadFile(const std::string& url, const std::string& outputPath) {
     std::cout << "Downloading file from URL: " << url << " to path: " << outputPath << std::endl;
 
@@ -57,16 +60,14 @@ void CloudServiceClient::downloadFile(const std::string& url, const std::string&
         return;
     }
 
-    std::string readBuffer;
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, nullptr);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
 
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
         std::cerr << "File download failed: " << curl_easy_strerror(res) << std::endl;
     } else {
-        fwrite(readBuffer.c_str(), sizeof(char), readBuffer.size(), file);
         std::cout << "File downloaded successfully to " << outputPath << std::endl;
     }
 
