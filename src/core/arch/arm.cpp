@@ -5,36 +5,50 @@
 void ARMGenerator::generateCode(ASTNode* root) {
     if (!root) return;
 
-    if (root->value == "+") {
+    if (root->type == ASTNodeType::ADD) {
         generateBinaryOperationCode("add", root->children[0], root->children[1]);
-    } else if (root->value == "-") {
+    } else if (root->type == ASTNodeType::SUB) {
         generateBinaryOperationCode("sub", root->children[0], root->children[1]);
-    } else if (root->value == "*") {
+    } else if (root->type == ASTNodeType::MUL) {
         generateBinaryOperationCode("mul", root->children[0], root->children[1]);
-    } else if (root->value == "/") {
+    } else if (root->type == ASTNodeType::DIV) {
         generateCode(root->children[0]);
-        std::cout << "    push {r0}" << std::endl;
+        generatePushRegister("r0");
         generateCode(root->children[1]);
-        std::cout << "    pop {r1}" << std::endl;
+        generatePopRegister("r1");
         std::cout << "    bl __aeabi_idiv" << std::endl;
-    } else {
-        // Здесь предполагается, что root->value содержит число
+    } else if (root->type == ASTNodeType::NUMBER) {
         generateMoveInstruction(root->value);
+    } else if (root->type == ASTNodeType::VARIABLE) {
+        // Предполагаем, что переменные обрабатываются отдельно
+        std::cout << "    ldr r0, =" << root->value << std::endl;
+    } else {
+        std::cerr << "Error: Unsupported AST node type for code generation." << std::endl;
     }
 }
 
 // Генерация кода для бинарных операций
 void ARMGenerator::generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right) {
     generateCode(left);
-    std::cout << "    push {r0}" << std::endl;
+    generatePushRegister("r0");
     generateCode(right);
-    std::cout << "    pop {r1}" << std::endl;
+    generatePopRegister("r1");
     std::cout << "    " << operation << " r0, r0, r1" << std::endl;
 }
 
 // Генерация инструкции mov
 void ARMGenerator::generateMoveInstruction(const std::string& value) {
     std::cout << "    mov r0, #" << value << std::endl;
+}
+
+// Генерация инструкции push для регистра
+void ARMGenerator::generatePushRegister(const std::string& reg) {
+    std::cout << "    push {" << reg << "}" << std::endl;
+}
+
+// Генерация инструкции pop для регистра
+void ARMGenerator::generatePopRegister(const std::string& reg) {
+    std::cout << "    pop {" << reg << "}" << std::endl;
 }
 
 // Оптимизация кода для ARM
@@ -54,7 +68,6 @@ void ARMGenerator::optimizeCode(std::string& assemblyCode) {
         assemblyCode.erase(pos, 9);
     }
 
-    // Другие примеры оптимизаций
     // Удаление избыточных push/pop инструкций
     while ((pos = assemblyCode.find("push {r0}\npop {r0}")) != std::string::npos) {
         assemblyCode.erase(pos, 15);
