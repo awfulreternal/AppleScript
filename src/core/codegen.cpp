@@ -1,5 +1,6 @@
 #include "codegen.h"
 #include <sstream>
+#include <algorithm> // Для std::transform
 
 // Генерация кода для класса
 std::string CodeGenerator::generateClassCode(const ASTNode& node) const {
@@ -37,9 +38,14 @@ std::string CodeGenerator::generateExpressionCode(const ASTNode& node) const {
     } else if (node.type == "Identifier") {
         ss << "Var(" << node.value << ")";
     } else {
-        ss << "UnknownNode(" << node.value << ")";
+        ss << generateUnknownNodeCode(node); // Обработка неизвестных узлов
     }
     return ss.str();
+}
+
+// Генерация кода для неизвестного узла
+std::string CodeGenerator::generateUnknownNodeCode(const ASTNode& node) const {
+    return "UnknownNode(" + node.value + ")";
 }
 
 // Генерация промежуточного и объектного кода
