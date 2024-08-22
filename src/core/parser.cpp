@@ -14,12 +14,13 @@ void Parser::advance() {
 
 // Основной метод для парсинга
 std::unique_ptr<ASTNode> Parser::parse() {
-    if (currentToken.type == TOKEN_CLASS) {
-        return parseClass();
-    } else if (currentToken.type == TOKEN_FUNCTION) {
-        return parseFunction();
-    } else {
-        return expression();
+    switch (currentToken.type) {
+        case TOKEN_CLASS: return parseClass();
+        case TOKEN_FUNCTION: return parseFunction();
+        // Добавлены возможности для других типов
+        case TOKEN_IDENTIFIER: return parseIdentifier();
+        case TOKEN_ASYNC: return parseAsync();
+        default: return expression();
     }
 }
 
@@ -31,8 +32,7 @@ std::unique_ptr<ASTNode> Parser::parseClass() {
         error("Expected class name");
     }
 
-    auto classNode = std::make_unique<ASTNode>("Class");
-    classNode->value = currentToken.value;
+    auto classNode = std::make_unique<ASTNode>(currentToken.value, "Class");
     advance(); // Пропускаем имя класса
 
     if (currentToken.type != TOKEN_LBRACE) {
@@ -60,8 +60,7 @@ std::unique_ptr<ASTNode> Parser::parseFunction() {
         error("Expected function name");
     }
 
-    auto funcNode = std::make_unique<ASTNode>("Function");
-    funcNode->value = currentToken.value;
+    auto funcNode = std::make_unique<ASTNode>(currentToken.value, "Function");
     advance(); // Пропускаем имя функции
 
     if (currentToken.type != TOKEN_LPAREN) {
@@ -71,7 +70,7 @@ std::unique_ptr<ASTNode> Parser::parseFunction() {
 
     // Пропускаем параметры функции (упрощенно)
     while (currentToken.type == TOKEN_IDENTIFIER) {
-        funcNode->addChild(std::make_unique<ASTNode>(currentToken.value));
+        funcNode->addChild(std::make_unique<ASTNode>(currentToken.value, "Parameter"));
         advance();
     }
 
@@ -100,7 +99,7 @@ std::unique_ptr<ASTNode> Parser::expression() {
 
     while (currentToken.type == TOKEN_OPERATOR && 
            (currentToken.value == "+" || currentToken.value == "-")) {
-        auto newNode = std::make_unique<ASTNode>(currentToken.value);
+        auto newNode = std::make_unique<ASTNode>(currentToken.value, "Operator");
         newNode->addChild(std::move(node));
         advance();
         newNode->addChild(term());
@@ -116,7 +115,7 @@ std::unique_ptr<ASTNode> Parser::term() {
 
     while (currentToken.type == TOKEN_OPERATOR && 
            (currentToken.value == "*" || currentToken.value == "/")) {
-        auto newNode = std::make_unique<ASTNode>(currentToken.value);
+        auto newNode = std::make_unique<ASTNode>(currentToken.value, "Operator");
         newNode->addChild(std::move(node));
         advance();
         newNode->addChild(factor());
@@ -129,7 +128,7 @@ std::unique_ptr<ASTNode> Parser::term() {
 // Парсинг фактора
 std::unique_ptr<ASTNode> Parser::factor() {
     if (currentToken.type == TOKEN_NUMBER || currentToken.type == TOKEN_IDENTIFIER) {
-        auto node = std::make_unique<ASTNode>(currentToken.value);
+        auto node = std::make_unique<ASTNode>(currentToken.value, currentToken.type == TOKEN_NUMBER ? "Number" : "Identifier");
         advance();
         return node;
     }
