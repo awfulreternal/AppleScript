@@ -5,31 +5,35 @@
 void X86Generator::generateCode(ASTNode* root) {
     if (!root) return;
 
-    if (root->value == "+") {
-        generateBinaryOperationCode("add", "ebx");
-    } else if (root->value == "-") {
-        generateBinaryOperationCode("sub", "ebx");
-    } else if (root->value == "*") {
-        generateBinaryOperationCode("imul", "ebx");
-    } else if (root->value == "/") {
+    if (root->type == ASTNodeType::ADD) {
+        generateBinaryOperationCode("add", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::SUB) {
+        generateBinaryOperationCode("sub", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::MUL) {
+        generateBinaryOperationCode("imul", root->children[0], root->children[1]);
+    } else if (root->type == ASTNodeType::DIV) {
         generateCode(root->children[0]);
         std::cout << "    push eax" << std::endl;
         generateCode(root->children[1]);
         std::cout << "    pop ebx" << std::endl;
-        std::cout << "    xor edx, edx" << std::endl; // Очистка регистра остатка
+        std::cout << "    cdq" << std::endl; // Расширение знака в edx:eax
         std::cout << "    idiv ebx" << std::endl;
-    } else {
+    } else if (root->type == ASTNodeType::NUMBER) {
         generateMoveInstruction(root->value);
+    } else if (root->type == ASTNodeType::VARIABLE) {
+        std::cout << "    mov eax, [variable_" << root->value << "]" << std::endl;
+    } else {
+        std::cerr << "Error: Unsupported AST node type for code generation." << std::endl;
     }
 }
 
 // Генерация кода для бинарных операций
-void X86Generator::generateBinaryOperationCode(const std::string& operation, const std::string& reg) {
-    generateCode(root->children[0]);
+void X86Generator::generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right) {
+    generateCode(left);
     std::cout << "    push eax" << std::endl;
-    generateCode(root->children[1]);
-    std::cout << "    pop " << reg << std::endl;
-    std::cout << "    " << operation << " eax, " << reg << std::endl;
+    generateCode(right);
+    std::cout << "    pop ebx" << std::endl;
+    std::cout << "    " << operation << " eax, ebx" << std::endl;
 }
 
 // Генерация инструкции mov
@@ -62,7 +66,6 @@ void X86Generator::applyPeepholeOptimizations(std::string& assemblyCode) {
     while ((pos = assemblyCode.find("mov eax, 0")) != std::string::npos) {
         assemblyCode.replace(pos, 11, "xor eax, eax");
     }
-    // Дополнительные примеры оптимизаций
     while ((pos = assemblyCode.find("mov eax, 1\nimul eax, eax")) != std::string::npos) {
         assemblyCode.replace(pos, 19, "mov eax, eax");
     }
