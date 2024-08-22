@@ -1,13 +1,13 @@
 #include "lexer.h"
 #include <fstream>
 #include <cctype>
-#include <unordered_set>
 #include <stdexcept>
 #include <iterator>
 #include <iostream>
+#include <string_view>
 
 // Определение ключевых слов
-const std::unordered_set<std::string> KEYWORDS = {
+const std::unordered_set<std::string> Lexer::KEYWORDS = {
     "class", "function", "async", "await", "if", "else", "for", "while"
 };
 
@@ -26,13 +26,8 @@ Lexer::Lexer(const std::string& filename) : currentIndex(0), currentChar('\0') {
 
 // Перемещение к следующему символу
 void Lexer::advance() {
-    if (currentIndex < source.length()) {
-        ++currentIndex;
-        if (currentIndex < source.length()) {
-            currentChar = source[currentIndex];
-        } else {
-            currentChar = '\0';
-        }
+    if (++currentIndex < source.length()) {
+        currentChar = source[currentIndex];
     } else {
         currentChar = '\0';
     }
@@ -41,16 +36,16 @@ void Lexer::advance() {
 // Получение следующего токена
 Token Lexer::getNextToken() {
     while (currentChar != '\0') {
-        if (isspace(currentChar)) {
+        if (std::isspace(static_cast<unsigned char>(currentChar))) {
             advance();
             continue;
         }
 
-        if (isalpha(currentChar) || currentChar == '_') {
+        if (std::isalpha(static_cast<unsigned char>(currentChar)) || currentChar == '_') {
             return identifier();
         }
 
-        if (isdigit(currentChar)) {
+        if (std::isdigit(static_cast<unsigned char>(currentChar))) {
             return number();
         }
 
@@ -69,13 +64,13 @@ Token Lexer::getNextToken() {
         throw std::runtime_error("Unknown character: " + std::string(1, currentChar));
     }
 
-    return {TOKEN_EOF, ""};
+    return {TokenType::EOF_TOKEN, ""};
 }
 
 // Обработка идентификаторов и ключевых слов
 Token Lexer::identifier() {
     std::string result;
-    while (isalnum(currentChar) || currentChar == '_') {
+    while (std::isalnum(static_cast<unsigned char>(currentChar)) || currentChar == '_') {
         result += currentChar;
         advance();
     }
@@ -84,19 +79,19 @@ Token Lexer::identifier() {
         return keywordToken(result);
     }
     
-    return {TOKEN_IDENTIFIER, result};
+    return {TokenType::IDENTIFIER, result};
 }
 
 // Определение токена для ключевых слов
 Token Lexer::keywordToken(const std::string& keyword) const {
-    if (keyword == "class") return {TOKEN_CLASS, keyword};
-    if (keyword == "function") return {TOKEN_FUNCTION, keyword};
-    if (keyword == "async") return {TOKEN_ASYNC, keyword};
-    if (keyword == "await") return {TOKEN_AWAIT, keyword};
-    if (keyword == "if") return {TOKEN_IF, keyword};
-    if (keyword == "else") return {TOKEN_ELSE, keyword};
-    if (keyword == "for") return {TOKEN_FOR, keyword};
-    if (keyword == "while") return {TOKEN_WHILE, keyword};
+    if (keyword == "class") return {TokenType::CLASS, keyword};
+    if (keyword == "function") return {TokenType::FUNCTION, keyword};
+    if (keyword == "async") return {TokenType::ASYNC, keyword};
+    if (keyword == "await") return {TokenType::AWAIT, keyword};
+    if (keyword == "if") return {TokenType::IF, keyword};
+    if (keyword == "else") return {TokenType::ELSE, keyword};
+    if (keyword == "for") return {TokenType::FOR, keyword};
+    if (keyword == "while") return {TokenType::WHILE, keyword};
     
     std::cerr << "Error: Unexpected keyword: " << keyword << std::endl;
     throw std::runtime_error("Unexpected keyword: " + keyword);
@@ -105,23 +100,23 @@ Token Lexer::keywordToken(const std::string& keyword) const {
 // Обработка чисел
 Token Lexer::number() {
     std::string result;
-    while (isdigit(currentChar)) {
+    while (std::isdigit(static_cast<unsigned char>(currentChar))) {
         result += currentChar;
         advance();
     }
-    return {TOKEN_NUMBER, result};
+    return {TokenType::NUMBER, result};
 }
 
 // Обработка операторов
 Token Lexer::op() {
     char op = currentChar;
     advance();
-    return {TOKEN_OPERATOR, std::string(1, op)};
+    return {TokenType::OPERATOR, std::string(1, op)};
 }
 
 // Обработка знаков препинания
 Token Lexer::punct() {
     char punct = currentChar;
     advance();
-    return {TOKEN_PUNCTUATION, std::string(1, punct)};
+    return {TokenType::PUNCTUATION, std::string(1, punct)};
 }
