@@ -6,42 +6,43 @@ void ARMGenerator::generateCode(ASTNode* root) {
     if (!root) return;
 
     if (root->value == "+") {
-        generateCode(root->children[0]);
-        std::cout << "    push {r0}" << std::endl;
-        generateCode(root->children[1]);
-        std::cout << "    pop {r1}" << std::endl;
-        std::cout << "    add r0, r0, r1" << std::endl;
+        generateBinaryOperationCode("add", root->children[0], root->children[1]);
     } else if (root->value == "-") {
-        generateCode(root->children[0]);
-        std::cout << "    push {r0}" << std::endl;
-        generateCode(root->children[1]);
-        std::cout << "    pop {r1}" << std::endl;
-        std::cout << "    sub r0, r0, r1" << std::endl;
+        generateBinaryOperationCode("sub", root->children[0], root->children[1]);
     } else if (root->value == "*") {
-        generateCode(root->children[0]);
-        std::cout << "    push {r0}" << std::endl;
-        generateCode(root->children[1]);
-        std::cout << "    pop {r1}" << std::endl;
-        std::cout << "    mul r0, r0, r1" << std::endl;
+        generateBinaryOperationCode("mul", root->children[0], root->children[1]);
     } else if (root->value == "/") {
         generateCode(root->children[0]);
         std::cout << "    push {r0}" << std::endl;
         generateCode(root->children[1]);
         std::cout << "    pop {r1}" << std::endl;
-        // В ARM нет простой команды деления, поэтому используется функция библиотеки или ассистирующий код
         std::cout << "    bl __aeabi_idiv" << std::endl;
     } else {
         // Здесь предполагается, что root->value содержит число
-        std::cout << "    mov r0, #" << root->value << std::endl;
+        generateMoveInstruction(root->value);
     }
+}
+
+// Генерация кода для бинарных операций
+void ARMGenerator::generateBinaryOperationCode(const std::string& operation, ASTNode* left, ASTNode* right) {
+    generateCode(left);
+    std::cout << "    push {r0}" << std::endl;
+    generateCode(right);
+    std::cout << "    pop {r1}" << std::endl;
+    std::cout << "    " << operation << " r0, r0, r1" << std::endl;
+}
+
+// Генерация инструкции mov
+void ARMGenerator::generateMoveInstruction(const std::string& value) {
+    std::cout << "    mov r0, #" << value << std::endl;
 }
 
 // Оптимизация кода для ARM
 void ARMGenerator::optimizeCode(std::string& assemblyCode) {
     std::cout << "Optimizing ARM assembly code..." << std::endl;
 
-    // Пример оптимизации: упрощение инструкций
-    // Замена последовательности "mov r0, #0\nadd r0, r0, r1" на "mov r0, r1"
+    // Упрощение инструкций
+    // Замена "mov r0, #0\nadd r0, r0, r1" на "mov r0, r1"
     size_t pos;
     while ((pos = assemblyCode.find("mov r0, #0\nadd r0, r0, r1")) != std::string::npos) {
         assemblyCode.replace(pos, 26, "mov r0, r1");
@@ -53,6 +54,14 @@ void ARMGenerator::optimizeCode(std::string& assemblyCode) {
         assemblyCode.erase(pos, 9);
     }
 
-    // Обратите внимание, что оптимизации должны учитывать контекст и
-    // структуру кода для эффективного применения
+    // Другие примеры оптимизаций
+    // Удаление избыточных push/pop инструкций
+    while ((pos = assemblyCode.find("push {r0}\npop {r0}")) != std::string::npos) {
+        assemblyCode.erase(pos, 15);
+    }
+
+    // Удаление избыточных инструкций, таких как "nop"
+    while ((pos = assemblyCode.find("nop")) != std::string::npos) {
+        assemblyCode.erase(pos, 3);
+    }
 }
