@@ -1,21 +1,58 @@
 #include "async.h"
+#include <iostream>
 
-// Глобальный экземпляр обработчика асинхронных задач
-AsyncHandler g_asyncHandler;
+AsyncHandler::AsyncHandler() : stopRequested(false) {
+    // Создаем несколько потоков для выполнения задач
+    const size_t numThreads = std::thread::hardware_concurrency(); // Используем количество потоков процессора
+    for (size_t i = 0; i < numThreads; ++i) {
+        workers.emplace_back(&AsyncHandler::workerThread, this);
+    }
+}
 
-void Async::handleAsync() {
-    // Пример использования асинхронного обработчика
-    g_asyncHandler.addTask([]() {
-        std::cout << "Starting async task 1" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2)); // Имитация работы
-        std::cout << "Async task 1 completed" << std::endl;
-    });
+AsyncHandler::~AsyncHandler() {
+    stopRequested = true;
+    tasksCv.notify_all(); // Уведомляем все рабочие потоки о завершении работы
+    for (std::thread& worker : workers) {
+        if (worker.joinable()) {
+            worker.join(); // Ожидаем завершения работы всех потоков
+        }
+    }
+}
 
-    g_asyncHandler.addTask([]() {
-        std::cout << "Starting async task 2" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // Имитация работы
-        std::cout << "Async task 2 completed" << std::endl;
-    });
+void AsyncHandler::addTask(const std::function<void()>& task) {
+    {
+        std::lock_guard<std::mutex> lock(tasksMutex);
+        tasks.push_back(task);
+    }
+    tasksCv.notify_one(); // Уведомляем один поток о наличии новой задачи
+}
 
-    g_asyncHandler.runTasks(); // Запуск всех задач
+void AsyncHandler::runTasks() {
+    {
+        std::lock_guard<std::mutex> lock(tasksMutex);
+        // Пустая реализация; выполнение задач будет происходить в workerThread
+    }
+}
+
+void AsyncHandler::workerThread() {
+    while (!stopRequested) {
+        std::function<void()> task;
+        {
+            std::unique_lock<std::mutex> lock(tasksMutex);
+            tasksCv.wait(lock, [this] { return stopRequested || !tasks.empty(); });
+
+            if (stopRequested && tasks.empty()) {
+                return;
+            }
+
+            if (!tasks.empty()) {
+                task = tasks.front();
+                tasks.erase(tasks.begin());
+            }
+        }
+
+        if (task) {
+            task();
+        }
+    }
 }
