@@ -1,36 +1,66 @@
 #include "as_network.h"
 #include <iostream>
+#include <cstring>
+#include <unistd.h>    // Для close()
+#include <arpa/inet.h> // Для socket(), connect(), send(), recv()
 
-/**
- * @brief Подключение к серверу по указанному адресу.
- * 
- * @param address Адрес сервера для подключения.
- */
-void NetworkClient::connect(const std::string& address) {
-    std::cout << "Connecting to " << address << "..." << std::endl;
-    // Здесь должна быть реализация подключения к серверу.
-    // Например, использование сокетов или HTTP-клиента.
+bool NetworkClient::connect(const std::string& address, int port) {
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        std::cerr << "Error: Failed to create socket" << std::endl;
+        return false;
+    }
+
+    sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(port);
+    if (inet_pton(AF_INET, address.c_str(), &serverAddr.sin_addr) <= 0) {
+        std::cerr << "Error: Invalid address/Address not supported" << std::endl;
+        close(sockfd);
+        return false;
+    }
+
+    if (::connect(sockfd, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        std::cerr << "Error: Connection failed" << std::endl;
+        close(sockfd);
+        return false;
+    }
+
+    isConnected = true;
+    std::cout << "Connected to " << address << " on port " << port << std::endl;
+    return true;
 }
 
-/**
- * @brief Отправка данных на сервер.
- * 
- * @param data Данные, которые необходимо отправить.
- */
-void NetworkClient::sendData(const std::string& data) {
-    std::cout << "Sending data: " << data << std::endl;
-    // Здесь должна быть реализация отправки данных.
-    // Например, запись данных в сокет или отправка HTTP-запроса.
+bool NetworkClient::sendData(const std::string& data) {
+    if (!isConnected) {
+        std::cerr << "Error: Not connected to any server" << std::endl;
+        return false;
+    }
+
+    ssize_t sentBytes = send(sockfd, data.c_str(), data.size(), 0);
+    if (sentBytes < 0) {
+        std::cerr << "Error: Failed to send data" << std::endl;
+        return false;
+    }
+
+    std::cout << "Sent data: " << data << std::endl;
+    return true;
 }
 
-/**
- * @brief Получение данных от сервера.
- * 
- * @return std::string Данные, полученные от сервера.
- */
 std::string NetworkClient::receiveData() {
-    std::cout << "Receiving data..." << std::endl;
-    // Здесь должна быть реализация получения данных от сервера.
-    // Например, чтение данных из сокета или получение ответа на HTTP-запрос.
-    return "Received data"; // Возвращаем пример полученных данных.
+    if (!isConnected) {
+        std::cerr << "Error: Not connected to any server" << std::endl;
+        return "";
+    }
+
+    char buffer[1024] = {0};
+    ssize_t recvBytes = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
+    if (recvBytes < 0) {
+        std::cerr << "Error: Failed to receive data" << std::endl;
+        return "";
+    }
+
+    std::string data(buffer, recvBytes);
+    std::cout << "Received data: " << data << std::endl;
+    return data;
 }
